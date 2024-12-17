@@ -18,6 +18,16 @@ def render(
     return rendered
 
 
+def render_code(
+    obj: Renderable | bool | int | float | str | Sequence[Any] | Mapping[str, Any],
+) -> str:
+    """
+    Render renderable objects using the `render` method
+    and strip any `#` code-mode prefixes.
+    """
+    return render(obj).lstrip("#")
+
+
 def render_type(
     arg: bool | int | float | str | Sequence[Any] | Mapping[str, Any],
 ) -> str:
@@ -44,11 +54,11 @@ def render_mapping(arg: Mapping[str, Any]) -> str:
     """
     Render a mapping from string to any object supported by `render`.
     """
-    return render_sequence(f"{k}: {render(v).lstrip('#')}" for k, v in arg.items())
+    return render_sequence(f"{k}: {render_code(v)}" for (k, v) in arg.items())
 
 
 def render_sequence(arg: Iterable[Any]) -> str:
     """
     Render a sequence of any object supported by `render`.
     """
-    return f"({', '.join(render(a).lstrip("#") for a in arg)})"
+    return f"({', '.join(render_code(a) for a in arg)})"
