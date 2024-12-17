@@ -1,3 +1,9 @@
+## 0.4.0 (2024-12-17)
+
+### Feat
+
+- make rendering utils recursive (#16)
+
 ## 0.3.0 (2024-12-17)
 
 ### Feat
