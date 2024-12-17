@@ -1,8 +1,15 @@
 from abc import ABC, abstractmethod
+from dataclasses import dataclass
 from typing import Any
 
 
 class Renderable(ABC):
+    """
+    Abstract base class for any renderable object.
+
+    Any Typst document element should inherit/implement this abstract base class.
+    """
+
     @abstractmethod
     def render(self) -> str:
         pass
@@ -14,3 +21,21 @@ class Renderable(ABC):
                 return True
 
         return NotImplemented
+
+
+@dataclass
+class Plain:
+    """
+    Plain string content that is rendered as-is.
+    """
+
+    value: str
+
+    def render(self) -> str:
+        """
+        Render the internal string value as-is.
+
+        Returns:
+            The internal string value as-is.
+        """
+        return self.value

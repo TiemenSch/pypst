@@ -5,6 +5,7 @@ from pypst.document import Document
 from pypst.heading import Heading
 from pypst.itemize import Itemize, Enumerate
 from pypst.image import Image
+from pypst.renderable import Renderable, Plain
 
 __all__ = [
     "Table",
@@ -15,5 +16,7 @@ __all__ = [
     "Itemize",
     "Enumerate",
     "Image",
+    "Renderable",
+    "Plain",
 ]
 __version__ = "0.2.0"

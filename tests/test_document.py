@@ -3,6 +3,7 @@ import typst
 
 from pypst.figure import Figure
 from pypst.document import Document, Import
+from pypst.renderable import Plain
 
 
 def test_empty_document():
@@ -31,8 +32,11 @@ def test_document_with_multiple_body_elements(dummy_body):
 def test_document_with_imports(dummy_body):
     document = Document(dummy_body)
     document.add_import("@preview/cetz:0.2.2")
+    document.add_import(Plain("cetz.draw"), members=["*"])
     assert document.render() == (
-        '#import "@preview/cetz:0.2.2"\n\n' "#text(fill: red)[Hello, world!]"
+        '#import "@preview/cetz:0.2.2"\n'
+        "#import cetz.draw: *\n\n"
+        "#text(fill: red)[Hello, world!]"
     )
 
 
@@ -60,7 +64,20 @@ class TestImport:
         imp = Import('"todo.typ"')
         assert imp.render() == '#import "todo.typ"'
 
+    def test_plain_import(self):
+        imp = Import(Plain("todo.task"))
+        assert imp.render() == "#import todo.task"
+
+    def test_plain_import_with_members(self):
+        imp = Import(Plain("todo.task"), "*")
+        assert imp.render() == "#import todo.task: *"
+
     def test_faulty_import(self):
         imp = Import("todo.typ", ["*", "task"])
+        with pytest.raises(ValueError):
+            imp.render()
+
+    def test_faulty_plain_import(self):
+        imp = Import(Plain("todo"), ["*", "task"])
         with pytest.raises(ValueError):
             imp.render()

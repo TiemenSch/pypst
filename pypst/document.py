@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from pypst import utils
-from pypst.renderable import Renderable
+from pypst.renderable import Plain, Renderable
 
 
 class Document:
@@ -92,10 +92,14 @@ class Document:
         else:
             self._body.append(element)
 
-    def add_import(self, module: str, members: Optional[list[str]] = None) -> None:
+    def add_import(
+        self, module: str | Plain, members: Optional[list[str]] = None
+    ) -> None:
         """
         Add an import to the document.
 
+        The module is wrapped in quotes upon rendering by default,
+        but can be replaced by a `Plain` value to facilitate imports from a module value.
         If members are provided,
         only those members will be imported as `#import <module>: <list of members>`.
         If no members are provided, the entire module will be imported as
@@ -130,12 +134,31 @@ class Document:
 
 @dataclass
 class Import:
-    module: str
+    """
+    Typst import statement to add to the document.
+
+    The module is wrapped in quotes upon rendering by default,
+    but can be replaced by a `Plain` value to facilitate imports from a module value.
+    If members are provided,
+    only those members will be imported as `#import <module>: <list of members>`.
+    If no members are provided, the entire module will be imported as
+    `#import <module>`.
+    Imports are rendered at the top of the document.
+
+    Args:
+        module: The module to import.
+        members: The optional list of members to import.
+    """
+
+    module: str | Plain
     members: list[str] = field(default_factory=list)
 
     def render(self) -> str:
-        module = self.module.strip('"')
-        module = f'"{module}"'
+        if isinstance(self.module, Plain):
+            module = self.module.render()
+        else:
+            module = self.module.strip('"')
+            module = f'"{module}"'
         rendered_import = f"#import {module}"
         if self.members:
             if "*" in self.members and len(self.members) > 1:
