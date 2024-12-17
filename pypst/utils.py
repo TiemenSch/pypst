@@ -1,4 +1,4 @@
-from typing import Sequence, Mapping, Iterable, Any
+from typing import Sequence, Mapping, Iterable
 
 from pypst.renderable import Renderable
 
