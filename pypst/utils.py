@@ -1,18 +1,11 @@
-from typing import Sequence, Mapping, Iterable
-
+from collections.abc import Iterable, Mapping, Sequence
+from typing import Any
 from pypst.renderable import Renderable
 
-BuiltIn = (
-    bool
-    | int
-    | float
-    | str
-    | Sequence[Renderable | "BuiltIn"]
-    | Mapping[str, Renderable | "BuiltIn"]
-)
 
-
-def render(obj: Renderable | BuiltIn) -> str:
+def render(
+    obj: Renderable | bool | int | float | str | Sequence[Any] | Mapping[str, Any],
+) -> str:
     """
     Render renderable objects using their `render` method
     or use the `render_type` utility to render built-in Python types.
@@ -25,7 +18,9 @@ def render(obj: Renderable | BuiltIn) -> str:
     return rendered
 
 
-def render_type(arg: BuiltIn) -> str:
+def render_type(
+    arg: bool | int | float | str | Sequence[Any] | Mapping[str, Any],
+) -> str:
     """
     Render different built-in Python types.
     """
@@ -45,14 +40,14 @@ def render_type(arg: BuiltIn) -> str:
     return rendered_arg
 
 
-def render_mapping(arg: Mapping[str, Renderable | BuiltIn]) -> str:
+def render_mapping(arg: Mapping[str, Any]) -> str:
     """
     Render a mapping from string to any object supported by `render`.
     """
-    return render_sequence(f"{k}: {render(v).lstrip("#")}" for k, v in arg.items())
+    return render_sequence(f"{k}: {render(v).lstrip('#')}" for k, v in arg.items())
 
 
-def render_sequence(arg: Iterable[Renderable | BuiltIn]) -> str:
+def render_sequence(arg: Iterable[Any]) -> str:
     """
     Render a sequence of any object supported by `render`.
     """
