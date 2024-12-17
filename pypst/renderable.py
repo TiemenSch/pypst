@@ -27,7 +27,6 @@ class Renderable(ABC):
 class Plain:
     """
     Plain string content that is rendered as-is.
-
     """
 
     value: str

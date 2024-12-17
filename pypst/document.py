@@ -138,16 +138,16 @@ class Import:
     Typst import statement to add to the document.
 
     The module is wrapped in quotes upon rendering by default,
-        but can be replaced by a `Plain` value to facilitate imports from a module value.
-        If members are provided,
-        only those members will be imported as `#import <module>: <list of members>`.
-        If no members are provided, the entire module will be imported as
-        `#import <module>`.
-        Imports are rendered at the top of the document.
+    but can be replaced by a `Plain` value to facilitate imports from a module value.
+    If members are provided,
+    only those members will be imported as `#import <module>: <list of members>`.
+    If no members are provided, the entire module will be imported as
+    `#import <module>`.
+    Imports are rendered at the top of the document.
 
-        Args:
-            module: The module to import.
-            members: The optional list of members to import.
+    Args:
+        module: The module to import.
+        members: The optional list of members to import.
     """
 
     module: str | Plain
