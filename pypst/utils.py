@@ -4,7 +4,14 @@ from pypst.renderable import Renderable
 
 
 def render(
-    obj: Renderable | bool | int | float | str | Sequence[Any] | Mapping[str, Any],
+    obj: Renderable
+    | bool
+    | int
+    | float
+    | str
+    | Sequence[Any]
+    | Mapping[str, Any]
+    | None,
 ) -> str:
     """
     Render renderable objects using their `render` method
@@ -19,7 +26,14 @@ def render(
 
 
 def render_code(
-    obj: Renderable | bool | int | float | str | Sequence[Any] | Mapping[str, Any],
+    obj: Renderable
+    | bool
+    | int
+    | float
+    | str
+    | Sequence[Any]
+    | Mapping[str, Any]
+    | None,
 ) -> str:
     """
     Render renderable objects using the `render` method
@@ -29,7 +43,7 @@ def render_code(
 
 
 def render_type(
-    arg: bool | int | float | str | Sequence[Any] | Mapping[str, Any],
+    arg: bool | int | float | str | Sequence[Any] | Mapping[str, Any] | None,
 ) -> str:
     """
     Render different built-in Python types.
@@ -44,6 +58,8 @@ def render_type(
         rendered_arg = render_sequence(arg)
     elif isinstance(arg, Mapping):
         rendered_arg = render_mapping(arg)
+    elif arg is None:
+        rendered_arg = "none"
     else:
         raise ValueError(f"Invalid argument type: {type(arg)}")
 
