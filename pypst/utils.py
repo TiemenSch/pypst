@@ -12,6 +12,7 @@ def render(
     | str
     | Sequence[Any]
     | Mapping[str, Any]
+    | date
     | datetime
     | timedelta
     | None,
@@ -99,7 +100,7 @@ def render_sequence(arg: Iterable[Any]) -> str:
     return f"({', '.join(render_code(a) for a in arg)})"
 
 
-def render_datetime(arg: date) -> str:
+def render_datetime(arg: date | datetime) -> str:
     """
     Render a Python `datetime.date` into a call to the Typst datetime function.
     """
