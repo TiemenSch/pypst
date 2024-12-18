@@ -1,4 +1,5 @@
 from pypst import Image, utils
+from datetime import date, datetime
 
 
 def test_flat_mapping():
@@ -24,3 +25,16 @@ def test_flat_sequence():
 def test_nested_seq():
     obj = ('"foo"', "bar", (2, Image("image.png")), None)
     assert utils.render(obj) == '("foo", bar, (2, image("image.png")), none)'
+
+
+def test_date():
+    obj = date(2024, 12, 18)
+    assert utils.render(obj) == "#datetime(year: 2024, month: 12, day: 18)"
+
+
+def test_datetime():
+    obj = datetime(2024, 12, 18, 15, 34, 12)
+    assert (
+        utils.render(obj)
+        == "#datetime(year: 2024, month: 12, day: 18, hour: 15, minute: 34, second: 12)"
+    )

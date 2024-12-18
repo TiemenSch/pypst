@@ -1,4 +1,5 @@
 from collections.abc import Iterable, Mapping, Sequence
+from datetime import date, datetime
 from typing import Any
 from pypst.renderable import Renderable
 
@@ -11,6 +12,8 @@ def render(
     | str
     | Sequence[Any]
     | Mapping[str, Any]
+    | date
+    | datetime
     | None,
 ) -> str:
     """
@@ -33,6 +36,8 @@ def render_code(
     | str
     | Sequence[Any]
     | Mapping[str, Any]
+    | date
+    | datetime
     | None,
 ) -> str:
     """
@@ -43,12 +48,22 @@ def render_code(
 
 
 def render_type(
-    arg: bool | int | float | str | Sequence[Any] | Mapping[str, Any] | None,
+    arg: bool
+    | int
+    | float
+    | str
+    | Sequence[Any]
+    | Mapping[str, Any]
+    | date
+    | datetime
+    | None,
 ) -> str:
     """
     Render different built-in Python types.
     """
-    if isinstance(arg, bool):
+    if arg is None:
+        rendered_arg = "none"
+    elif isinstance(arg, bool):
         rendered_arg = str(arg).lower()
     elif isinstance(arg, int | float):
         rendered_arg = str(arg)
@@ -58,8 +73,8 @@ def render_type(
         rendered_arg = render_sequence(arg)
     elif isinstance(arg, Mapping):
         rendered_arg = render_mapping(arg)
-    elif arg is None:
-        rendered_arg = "none"
+    elif isinstance(arg, date):
+        rendered_arg = render_date(arg)
     else:
         raise ValueError(f"Invalid argument type: {type(arg)}")
 
@@ -78,3 +93,15 @@ def render_sequence(arg: Iterable[Any]) -> str:
     Render a sequence of any object supported by `render`.
     """
     return f"({', '.join(render_code(a) for a in arg)})"
+
+
+def render_date(arg: date) -> str:
+    """
+    Render a Python `datetime.date` into a call to the Typst datetime function.
+    """
+    obj = {
+        name: getattr(arg, name)
+        for name in ["year", "month", "day", "hour", "minute", "second"]
+        if hasattr(arg, name)
+    }
+    return f"#datetime{render_mapping(obj)}"
