@@ -1,5 +1,5 @@
 from collections.abc import Iterable, Mapping, Sequence
-from datetime import date, datetime
+from datetime import date, datetime, timedelta
 from typing import Any
 from pypst.renderable import Renderable
 
@@ -14,6 +14,7 @@ def render(
     | Mapping[str, Any]
     | date
     | datetime
+    | timedelta
     | None,
 ) -> str:
     """
@@ -38,6 +39,7 @@ def render_code(
     | Mapping[str, Any]
     | date
     | datetime
+    | timedelta
     | None,
 ) -> str:
     """
@@ -56,6 +58,7 @@ def render_type(
     | Mapping[str, Any]
     | date
     | datetime
+    | timedelta
     | None,
 ) -> str:
     """
@@ -75,6 +78,8 @@ def render_type(
         rendered_arg = render_mapping(arg)
     elif isinstance(arg, date):
         rendered_arg = render_date(arg)
+    elif isinstance(arg, timedelta):
+        rendered_arg = render_timedelta(arg)
     else:
         raise ValueError(f"Invalid argument type: {type(arg)}")
 
@@ -105,3 +110,21 @@ def render_date(arg: date) -> str:
         if hasattr(arg, name)
     }
     return f"#datetime{render_mapping(obj)}"
+
+
+def render_timedelta(arg: timedelta) -> str:
+    """
+    Render a Python `datetime.timedelta` into a call to the Typst duration function.
+    """
+    obj = {
+        name: getattr(arg, name)
+        for name in [
+            "seconds",
+            "minutes",
+            "hours",
+            "days",
+            "weeks",
+        ]
+        if hasattr(arg, name)
+    }
+    return f"#duration{render_mapping(obj)}"
