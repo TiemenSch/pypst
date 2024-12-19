@@ -138,14 +138,32 @@ class Dictionary:
     Helper class to render Python dataclasses by iterating over its fields
     as if it were a dictionary.
 
-    Inherit from `RenderDataclass` to inherit the render method
-    and stick it on your dataclass.
+    Inherit from `Dictionary` to inherit the render method
+    and use it with your dataclass.
+
+    You can specify that `None` values should be rendered instead
+    of being skipped with `keep_none=True` on the field's metadata.
+
+    Example:
+        >>> from dataclasses import dataclass, field
+        >>> @dataclass
+        ... class Foo(Dictionary):
+        ...    bar: int | None = 4
+        ...    qux: int | None = field(default=16, metadata={"keep_none": True})
+        >>>
+        >>> Foo().render()
+        '#(bar: 4, qux: 16)'
+        >>> Foo(bar=None).render()
+        '#(qux: 16)'
+        >>> Foo(qux=None).render()
+        '#(bar: 4, qux: none)'
     """
 
     def render(self) -> str:
         """
-        Dataclass rendering using fields iteration
-        and recursively using Pypst rendering.
+        Dataclass rendering to a Typst dictionary.
+
+        Modify `field_to_render` to control which fields are included.
         """
         return f"#{render_mapping(
             {field.name: getattr(self, field.name) for field in self.fields_to_render()}
@@ -156,7 +174,7 @@ class Dictionary:
         These fields should be rendered. Defaults to skipping any fields with a value of `None`.
         """
 
-        def check(field: Field):
+        def check(field: Field) -> bool:
             if getattr(self, field.name) is None:
                 return field.metadata.get("keep_none", False)
             return True
@@ -165,7 +183,7 @@ class Dictionary:
 
 
 @dataclass
-class Function:
+class Function(Dictionary):
     """
     Helper class to render Typst function calls from a Python dataclass.
 
@@ -198,7 +216,9 @@ class Function:
 
     def render(self) -> str:
         """
-        Dataclass rendering to generate a function call.
+        Dataclass rendering to a Typst function call.
+
+        Modify `field_to_render` to control which fields are included.
         """
         # kebab-case the ClassName
         function = re.sub(
@@ -211,15 +231,3 @@ class Function:
             for field in self.fields_to_render()
         )
         return f"#{function}({options})"
-
-    def fields_to_render(self) -> Iterable[Field]:
-        """
-        These fields should be rendered. Defaults to skipping any fields with a value of `None`.
-        """
-
-        def check(field: Field):
-            if getattr(self, field.name) is None:
-                return field.metadata.get("keep_none", False)
-            return True
-
-        return filter(check, fields(self))
