@@ -1,4 +1,5 @@
 from collections.abc import Iterable, Mapping, Sequence
+from dataclasses import dataclass, fields
 from datetime import date, datetime, timedelta
 from typing import Any
 
@@ -128,3 +129,23 @@ def render_timedelta(arg: timedelta) -> str:
     }
     obj["seconds"] = obj["seconds"] + round(obj.pop("milliseconds") / 1e6)
     return f"#duration{render_mapping(obj)}"
+
+
+@dataclass
+class RenderDataclass:
+    """
+    Helper class to render Python dataclasses by iterating over its fields
+    as if it were a dictionary.
+
+    Inherit from `RenderDataclass` to inherit the render method
+    and stick it on your dataclass.
+    """
+
+    def render(self):
+        """
+        Dataclass rendering using fields iteration
+        and recursively using Pypst rendering.
+        """
+        return render_mapping(
+            {field.name: render(getattr(self, field.name)) for field in fields(self)}
+        )
