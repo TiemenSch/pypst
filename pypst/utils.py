@@ -1,8 +1,8 @@
+import re
 from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import dataclass, fields
+from dataclasses import Field, dataclass, fields
 from datetime import date, datetime, timedelta
 from typing import Any
-import re
 
 from pypst.renderable import Renderable
 
@@ -133,7 +133,7 @@ def render_timedelta(arg: timedelta) -> str:
 
 
 @dataclass
-class RenderDataclass:
+class Dictionary:
     """
     Helper class to render Python dataclasses by iterating over its fields
     as if it were a dictionary.
@@ -147,9 +147,21 @@ class RenderDataclass:
         Dataclass rendering using fields iteration
         and recursively using Pypst rendering.
         """
-        return render_mapping(
-            {field.name: getattr(self, field.name) for field in fields(self)}
-        )
+        return f"#{render_mapping(
+            {field.name: getattr(self, field.name) for field in self.fields_to_render()}
+        )}"
+
+    def fields_to_render(self) -> Iterable[Field]:
+        """
+        These fields should be rendered. Defaults to skipping any fields with a value of `None`.
+        """
+
+        def check(field: Field):
+            if getattr(self, field.name) is None:
+                return field.metadata.get("keep_none", False)
+            return True
+
+        return filter(check, fields(self))
 
 
 @dataclass
@@ -164,17 +176,24 @@ class Function:
     The dataclass' fields are used as the function arguments.
 
     You can specify a positional argument in Typst by adding
-    `positional=True` on the dataclass field's metadata.
+    `positional=True` on the field's metadata.
+
+    You can specify that `None` values should be rendered instead
+    of being skipped with `keep_none=True` on the field's metadata.
 
     Example:
         >>> from dataclasses import dataclass, field
         >>> @dataclass
         ... class FooFn(Function):
-        ...    bar: int = field(metadata={"positional": True})
-        ...    qux: int = 16
+        ...    bar: int | None = field(metadata={"positional": True})
+        ...    qux: int | None = field(default=16, metadata={"keep_none": True})
         >>>
         >>> FooFn(4).render()
         '#foo-fn(4, qux: 16)'
+        >>> FooFn(None).render()
+        '#foo-fn(qux: 16)'
+        >>> FooFn(4, qux=None).render()
+        '#foo-fn(4, qux: none)'
     """
 
     def render(self) -> str:
@@ -189,6 +208,18 @@ class Function:
             render_code(getattr(self, field.name))
             if field.metadata.get("positional", False)
             else f"{field.name}: {render_code(getattr(self, field.name))}"
-            for field in fields(self)
+            for field in self.fields_to_render()
         )
         return f"#{function}({options})"
+
+    def fields_to_render(self) -> Iterable[Field]:
+        """
+        These fields should be rendered. Defaults to skipping any fields with a value of `None`.
+        """
+
+        def check(field: Field):
+            if getattr(self, field.name) is None:
+                return field.metadata.get("keep_none", False)
+            return True
+
+        return filter(check, fields(self))

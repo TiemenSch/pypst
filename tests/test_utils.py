@@ -74,17 +74,15 @@ def test_timedelta_compile(test_compile):
 
 
 @dataclass
-class Foo(utils.RenderDataclass):
+class Foo(utils.Dictionary):
     bar: int = 3
     qux: float | None = 3.14
-
-    def render(self):
-        return f"#{super().render()}"
 
 
 def test_dataclass():
     assert Foo().render() == "#(bar: 3, qux: 3.14)"
-    assert Foo(bar=5, qux=None).render() == "#(bar: 5, qux: none)"
+    assert Foo(bar=5, qux=None).render() == "#(bar: 5)"
+    assert Foo(bar=5, qux="none").render() == "#(bar: 5, qux: none)"
 
 
 @pytest.mark.integration
@@ -113,7 +111,7 @@ def test_function_compile(test_compile):
         fill: str = "red"
 
     obj = Rect()
-    assert obj.render() == "#rect(none, width: 10em, height: 10%, fill: red)"
+    assert obj.render() == "#rect(width: 10em, height: 10%, fill: red)"
     test_compile(obj)
 
     obj = Rect('"hello world"')
