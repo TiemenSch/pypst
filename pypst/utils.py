@@ -155,11 +155,13 @@ class RenderDataclass:
 @dataclass
 class Function:
     """
-    Helper class to render Typst function calls.
+    Helper class to render Typst function calls from a Python dataclass.
 
     Inherit from `Function` to inherit the render method.
     The function name is derived from the class name
     and is converted to kebab-case.
+
+    The dataclass' fields are used as the function arguments.
 
     You can specify a positional argument in Typst by adding
     `positional=True` on the dataclass field's metadata.
