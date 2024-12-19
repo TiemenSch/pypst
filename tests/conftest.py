@@ -63,7 +63,7 @@ def compile_text(tmp_path: Path):
 
 
 @pytest.fixture
-def compile_rendered(compile_text):
+def test_compile(compile_text):
     def _compile_rendered(arg: Any) -> bytes:
         return compile_text(pypst.utils.render(arg))
 
