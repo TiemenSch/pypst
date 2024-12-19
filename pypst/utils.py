@@ -165,9 +165,10 @@ class Dictionary:
 
         Modify `field_to_render` to control which fields are included.
         """
-        return f"#{render_mapping(
+        mapping = render_mapping(
             {field.name: getattr(self, field.name) for field in self.fields_to_render()}
-        )}"
+        )
+        return f"#{mapping}"
 
     def fields_to_render(self) -> Iterable[Field]:
         """
