@@ -1,3 +1,4 @@
+import pytest
 from pypst import Image, utils
 from datetime import date, datetime, timedelta
 
@@ -41,7 +42,29 @@ def test_datetime():
 
 
 def test_timedelta():
-    obj = timedelta(
-        days=3, seconds=4, milliseconds=6
-    )  # millis are not supported in Typst
+    obj = timedelta(days=3, seconds=4)
     assert utils.render(obj) == "#duration(seconds: 4, days: 3)"
+    obj = timedelta(
+        days=3, seconds=4, microseconds=7e5
+    )  # millis are not supported in Typst, but we round them to seconds.
+    assert utils.render(obj) == "#duration(seconds: 5, days: 3)"
+
+
+@pytest.mark.integration
+def test_date_compile(compile_rendered):
+    obj = date(2024, 12, 18)
+    assert compile_rendered(obj)
+
+
+@pytest.mark.integration
+def test_datetime_compile(compile_rendered):
+    obj = datetime(2024, 12, 18, 15, 34, 12)
+    compile_rendered(obj)
+
+
+@pytest.mark.integration
+def test_timedelta_compile(compile_rendered):
+    obj = timedelta(
+        days=3, seconds=4, microseconds=7e5
+    )  # millis are not supported in Typst, but we round them to seconds.
+    compile_rendered(obj)
