@@ -1,6 +1,7 @@
 from collections.abc import Iterable, Mapping, Sequence
 from datetime import date, datetime, timedelta
 from typing import Any
+
 from pypst.renderable import Renderable
 
 
@@ -119,12 +120,11 @@ def render_timedelta(arg: timedelta) -> str:
     obj = {
         name: getattr(arg, name)
         for name in [
+            "microseconds",
             "seconds",
-            "minutes",
-            "hours",
             "days",
-            "weeks",
         ]
         if hasattr(arg, name)
     }
+    obj["seconds"] = obj["seconds"] + round(obj.pop("milliseconds") / 1e6)
     return f"#duration{render_mapping(obj)}"
