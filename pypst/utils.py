@@ -2,6 +2,7 @@ from collections.abc import Iterable, Mapping, Sequence
 from dataclasses import dataclass, fields
 from datetime import date, datetime, timedelta
 from typing import Any
+import re
 
 from pypst.renderable import Renderable
 
@@ -127,7 +128,7 @@ def render_timedelta(arg: timedelta) -> str:
         ]
         if hasattr(arg, name)
     }
-    obj["seconds"] = obj["seconds"] + round(obj.pop("milliseconds") / 1e6)
+    obj["seconds"] = obj["seconds"] + round(obj.pop("microseconds") / 1e6)
     return f"#duration{render_mapping(obj)}"
 
 
@@ -141,11 +142,51 @@ class RenderDataclass:
     and stick it on your dataclass.
     """
 
-    def render(self):
+    def render(self) -> str:
         """
         Dataclass rendering using fields iteration
         and recursively using Pypst rendering.
         """
         return render_mapping(
-            {field.name: render(getattr(self, field.name)) for field in fields(self)}
+            {field.name: getattr(self, field.name) for field in fields(self)}
         )
+
+
+@dataclass
+class Function:
+    """
+    Helper class to render Typst function calls.
+
+    Inherit from `Function` to inherit the render method.
+    The function name is derived from the class name
+    and is converted to kebab-case.
+
+    You can specify a positional argument in Typst by adding
+    `positional=True` on the dataclass field's metadata.
+
+    Example:
+        >>> from dataclasses import dataclass, field
+        >>> @dataclass
+        ... class FooFn(Function):
+        ...    bar: int = field(metadata={"positional": True})
+        ...    qux: int = 16
+        >>>
+        >>> FooFn(4).render()
+        '#foo-fn(4, qux: 16)'
+    """
+
+    def render(self) -> str:
+        """
+        Dataclass rendering to generate a function call.
+        """
+        # kebab-case the ClassName
+        function = re.sub(
+            r"([a-z0-9])([A-Z])", r"\1-\2", self.__class__.__name__
+        ).lower()
+        options = ", ".join(
+            render_code(getattr(self, field.name))
+            if field.metadata.get("positional", False)
+            else f"{field.name}: {render_code(getattr(self, field.name))}"
+            for field in fields(self)
+        )
+        return f"#{function}({options})"
