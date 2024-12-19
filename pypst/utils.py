@@ -163,7 +163,7 @@ class Dictionary:
         """
         Dataclass rendering to a Typst dictionary.
 
-        Modify `field_to_render` to control which fields are included.
+        Modify `fields_to_render` to control which fields are included.
         """
         mapping = render_mapping(
             {field.name: getattr(self, field.name) for field in self.fields_to_render()}
@@ -219,7 +219,7 @@ class Function(Dictionary):
         """
         Dataclass rendering to a Typst function call.
 
-        Modify `field_to_render` to control which fields are included.
+        Modify `fields_to_render` to control which fields are included.
         """
         # kebab-case the ClassName
         function = re.sub(
