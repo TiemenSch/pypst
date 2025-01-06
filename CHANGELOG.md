@@ -1,3 +1,9 @@
+## 0.5.0 (2025-01-06)
+
+### Feat
+
+- additional rendering utils (#17)
+
 ## 0.4.0 (2024-12-17)
 
 ### Feat
