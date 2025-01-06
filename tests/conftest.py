@@ -1,8 +1,12 @@
 import itertools
+from pathlib import Path
+from typing import Any
 
 import numpy as np
 import pandas as pd
 import pytest
+import typst
+import pypst.utils
 
 from pypst import Table
 
@@ -45,6 +49,25 @@ MULTI_FRAME = pd.DataFrame(
         ("B", "Y"): [10, 11, 12],
     }
 )
+
+
+@pytest.fixture
+def compile_text(tmp_path: Path):
+    path = tmp_path / "test.typ"
+
+    def _compile_text(text: str, *arg, **kwargs) -> bytes:
+        path.write_text(text, encoding="utf-8")
+        return typst.compile(path, *arg, **kwargs)
+
+    return _compile_text
+
+
+@pytest.fixture
+def test_compile(compile_text):
+    def _compile_rendered(arg: Any) -> bytes:
+        return compile_text(pypst.utils.render(arg))
+
+    return _compile_rendered
 
 
 @pytest.fixture

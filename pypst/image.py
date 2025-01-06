@@ -1,9 +1,11 @@
-from dataclasses import dataclass
-from typing import Optional, Literal
+from dataclasses import dataclass, field
+from typing import Literal
+
+from pypst.utils import Function
 
 
 @dataclass
-class Image:
+class Image(Function):
     """
     Image object to add image elements.
 
@@ -24,32 +26,21 @@ class Image:
         #image("image.png", width: 100%, height: 50%)
     """
 
-    path: str
-    format: Optional[Literal["png", "jpg", "gif", "svg"]] = None
-    width: Optional[str] = None
-    height: Optional[str] = None
-    alt: Optional[str] = None
-    fit: Optional[Literal["cover", "contain", "stretch"]] = None
+    __is_function__ = True
 
-    def render(self) -> str:
-        """
-        Render the image element to a string.
+    path: str = field(metadata={"positional": True})
+    format: Literal["png", "jpg", "gif", "svg"] | str | None = None
+    width: str | None = None
+    height: str | None = None
+    alt: str | None = None
+    fit: Literal["cover", "contain", "stretch"] | str | None = None
 
-        Returns:
-            The rendered image element.
-        """
-        path = self.path if self.path.startswith('"') else f'"{self.path}"'
-        args = [path]
-        if self.format is not None:
-            args.append(f'format: "{self.format}"')
-        if self.width is not None:
-            args.append(f"width: {self.width}")
-        if self.height is not None:
-            args.append(f"height: {self.height}")
-        if self.alt is not None:
-            args.append(f"alt: {self.alt}")
-        if self.fit is not None:
-            args.append(f'fit: "{self.fit}"')
-        rendered = f"#image({', '.join(args)})"
+    def __post_init__(self) -> None:
+        if not self.path.startswith('"'):
+            self.path = f'"{self.path}"'
 
-        return rendered
+        if self.format is not None and not self.format.startswith('"'):
+            self.format = f'"{self.format}"'
+
+        if self.fit is not None and not self.fit.startswith('"'):
+            self.fit = f'"{self.fit}"'
