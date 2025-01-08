@@ -21,6 +21,13 @@ Pypst is available on PyPI and can be installed via pip.
 pip install pypst
 ```
 
+To use the table functionality, `pandas` is needed.
+Install Pypsts like this instead:
+
+```bash
+pip install pypst[pandas]
+```
+
 ## Usage
 
 Pypst contains classes that represent Typst elements.

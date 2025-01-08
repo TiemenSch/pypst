@@ -1,3 +1,14 @@
+## 0.6.0 (2025-01-08)
+
+### BREAKING CHANGE
+
+- to use table functionality, package now needs to be installed as 'pypst[pandas]'
+
+### Feat
+
+- add Content, Functional, ShowRule, SetRule, and String (#18)
+- make pandas an extra (#22)
+
 ## 0.5.0 (2025-01-06)
 
 ### Feat
