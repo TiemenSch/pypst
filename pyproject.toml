@@ -19,9 +19,12 @@ classifiers = [
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pandas = "^2.2.2"
 frozenlist = "^1.4.1"
 frozendict = "^2.4.4"
+pandas = {version = "^2.2.2", optional = true}
+
+[tool.poetry.extras]
+pandas = ["pandas"]
 
 [tool.poetry.group.dev.dependencies]
 ruff = "^0.5.6"
