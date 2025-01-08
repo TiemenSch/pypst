@@ -1,6 +1,7 @@
+import json
 import re
-from collections.abc import Iterable, Mapping, Sequence
-from dataclasses import Field, fields, is_dataclass
+from collections.abc import Callable, Iterable, Mapping, Sequence
+from dataclasses import Field, dataclass, fields, is_dataclass
 from datetime import date, datetime, timedelta
 from typing import Any
 
@@ -234,6 +235,53 @@ def camel_to_kebab_case(arg: str) -> str:
     ).lower()
 
 
+def render_fenced(
+    body: str | Renderable | Iterable[str | Renderable] | None = None,
+    context: bool = False,
+    start: str = "{",
+    end: str = "}",
+    indent: int = 2,
+    joint: str = "\n",
+    render_fn: Callable[[Any], str] = render_code,
+) -> str:
+    """
+    Render a Typst fenced code block such as #{} and #[].
+
+    Example:
+        >>> render_fenced()
+        '#{}'
+
+        >>> from pypst import Content, SetRule
+        >>> string = render_fenced([SetRule("text", {"fill": "red"}), Content("This text will be red.")])
+        >>> print(string)
+        #{
+          set text(fill: red)
+          [This text will be red.]
+        }
+    """
+
+    ctx = "context " if context else ""
+
+    if isinstance(body, (str, Renderable)):
+        body = render_fn(body)
+    elif isinstance(body, Iterable):
+        body = joint.join(render_fn(entry) for entry in body)
+    elif body is None:
+        body = ""
+    else:
+        body = render_fn(body)
+
+    if indent is None:
+        return f"#{ctx}{start}{body}{end}"
+
+    if "\n" in body:
+        newline = f"\n{indent * ' '}"
+        indented = body.replace("\n", newline)
+        return f"#{ctx}{start}{newline}{indented}\n{end}"
+
+    return f"#{ctx}{start}{body}{end}"
+
+
 class _RenderDataclass:
     """
     Helper class that implements default dataclass rendering for dictionaries and functions.
@@ -294,3 +342,35 @@ class Function(_RenderDataclass):
     """
 
     __is_function__: bool | str = True
+
+
+@dataclass
+class String:
+    """
+    String helper that wraps any content in quotes.
+
+    Example:
+        >>> line = (
+        ...     "The most 'common' string in programming is: "
+        ...     '"Hello world!".'
+        ... )
+        >>> s = String(line)
+        >>> print(s.render())
+        #"The most 'common' string in programming is: \\"Hello world!\\"."
+    """
+
+    body: str | Renderable | None = None
+
+    def __post_init__(self) -> None:
+        if isinstance(self.body, String):
+            self.body = self.body.body
+
+    def render(self) -> str:
+        """
+        Render the internal body to a string, escaping any symbols in JSON fashion.
+        """
+        body = json.dumps(
+            "" if self.body is None else render_code(self.body), ensure_ascii=False
+        )
+        # Always assume we're in content mode.
+        return f"#{body}"
