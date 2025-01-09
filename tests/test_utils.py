@@ -99,6 +99,18 @@ def test_dataclass_compile(test_compile):
 
 
 @dataclass
+class EmptyFn(utils.Function):
+    nope: int | None = None
+
+
+def test_empty_fn():
+    assert (
+        EmptyFn().render() == "#empty-fn()"
+    ), "ensure that an empty function call is just () and not (:) like a mapping"
+    assert EmptyFn(2).render() == "#empty-fn(nope: 2)"
+
+
+@dataclass
 class FooFn(utils.Function):
     __is_function__ = True
     bar: int = field(metadata={"positional": True})
