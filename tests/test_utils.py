@@ -6,6 +6,11 @@ import pytest
 from pypst import Document, Image, utils
 
 
+def test_empty_mapping():
+    obj = dict()
+    assert utils.render(obj) == "(:)"
+
+
 def test_flat_mapping():
     obj = dict(foo='"bar"', quux='"corge"', qux=None, baz=Image("image.png"))
     assert (
@@ -81,6 +86,7 @@ class Foo(utils.Dictionary):
 
 def test_dataclass():
     assert Foo().render() == "#(bar: 3, qux: 3.14)"
+    assert Foo(bar=None, qux=None).render() == "#(:)"
     assert str(Foo()) == Foo().render()
     assert Foo(bar=5, qux=None).render() == "#(bar: 5)"
     assert Foo(bar=5, qux="none").render() == "#(bar: 5, qux: none)"
@@ -90,6 +96,18 @@ def test_dataclass():
 def test_dataclass_compile(test_compile):
     obj = Foo()
     test_compile(obj)
+
+
+@dataclass
+class EmptyFn(utils.Function):
+    nope: int | None = None
+
+
+def test_empty_fn():
+    assert (
+        EmptyFn().render() == "#empty-fn()"
+    ), "ensure that an empty function call is just () and not (:) like a mapping"
+    assert EmptyFn(2).render() == "#empty-fn(nope: 2)"
 
 
 @dataclass

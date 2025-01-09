@@ -96,7 +96,10 @@ def render_mapping(arg: Mapping[str, Any]) -> str:
     """
     Render a mapping from string to any object supported by `render`.
     """
-    return render_sequence(f"{k}: {render_code(v)}" for (k, v) in arg.items())
+    rendered = render_sequence(f"{k}: {render_code(v)}" for (k, v) in arg.items())
+    if rendered == "()":
+        return "(:)"
+    return rendered
 
 
 def render_sequence(arg: Iterable[Any]) -> str:
