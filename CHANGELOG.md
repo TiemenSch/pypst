@@ -1,3 +1,9 @@
+## 0.6.1 (2025-01-09)
+
+### Fix
+
+- handling of empty mappings (#23)
+
 ## 0.6.0 (2025-01-08)
 
 ### BREAKING CHANGE
